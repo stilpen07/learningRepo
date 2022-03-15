@@ -1,0 +1,9 @@
+http:
+  port: "8081"
+  path: "secureprop"
+
+db:
+  host: "localhost"
+  port: "1521"
+  user: "![Cteqm9keDx0=]"
+  password: "![MOiuoKONM4xiav0EyfoZ4WAK1YDw3899]"

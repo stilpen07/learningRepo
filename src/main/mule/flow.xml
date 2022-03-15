@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="testeFlow" doc:id="af4964de-c1f5-4e2d-aa7b-3269b4b47b00" >
+		<http:listener doc:name="Listener" doc:id="0645dc38-3df1-4eb4-8869-9ac8a1064b0f" path="/secureprops" config-ref="HTTP_Listener_config"/>
+		<ee:transform doc:name="Transform Message" doc:id="de1298dd-dabd-41df-bdc3-c74b2dbd3de7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	decrypted_user_name: p('secure::db.user'),
+	decrypted_password: p('secure::db.password'),
+	Message: "Smile you got hacked!"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

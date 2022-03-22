@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-	<flow name="testeFlow" doc:id="af4964de-c1f5-4e2d-aa7b-3269b4b47b00" >
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+	<flow name="main-flow" doc:id="af4964de-c1f5-4e2d-aa7b-3269b4b47b00" >
 		<http:listener doc:name="Listener" doc:id="0645dc38-3df1-4eb4-8869-9ac8a1064b0f" path="/secureprops" config-ref="HTTP_Listener_config"/>
 		<ee:transform doc:name="Transform Message" doc:id="de1298dd-dabd-41df-bdc3-c74b2dbd3de7" >
 			<ee:message >
@@ -15,9 +16,42 @@ output application/json
 {
 	decrypted_user_name: p('secure::db.user'),
 	decrypted_password: p('secure::db.password'),
-	Message: "Smile you got hacked!"
+	Message: "Smile, you got hacked!"
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="09ef1f90-0bbd-4b4b-a3e2-2382e0ac4760" name="verify-age-flow"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="10df01c5-3661-4d24-a8f0-195a1794825a" >
+				<logger level="ERROR" doc:name="Logger" doc:id="82ccb8e1-3337-4d7e-9ff1-dab82bdbc9be" message="#[payload]" category="Unauthorized"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="verify-age-flow" doc:id="7323ba52-52fc-479a-9430-1056367dd356" >
+		<set-variable value="#[attributes.queryParams.age]" doc:name="Age" doc:id="ef5e8f69-b2ca-4ef3-99cc-b0b9fd463842" variableName="Age"/>
+		<choice doc:name="Choice" doc:id="4dcaa5f1-2355-4661-a232-9d5f429b3da6" >
+			<when expression="#[vars.age &gt;= 18]">
+				<ee:transform doc:name="Transform Message" doc:id="cad23bd8-7be0-4cd8-bdaa-ce11a207fd74" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	name: attributes.queryParams.name,
+	age: vars.age,
+	access: "authorized"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<raise-error doc:name="Raise error" doc:id="331a275a-b0c9-42a9-acb1-1c654faf5034" type="API:BAD_REQUEST" description="Authorization Failed"/>
+			</otherwise>
+		</choice>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="38e9ac83-be6f-46a7-9e26-7d33350aef3c" type="ANY">
+				<set-payload value='#["forbidden access"]' doc:name="Set Payload" doc:id="ae48d6b4-ee25-4abe-bc91-1dc0f2aa13ce" />
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 </mule>

@@ -7,7 +7,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
 	<flow name="main-flow" doc:id="af4964de-c1f5-4e2d-aa7b-3269b4b47b00" >
-		<http:listener doc:name="Listener" doc:id="0645dc38-3df1-4eb4-8869-9ac8a1064b0f" path="/secureprops" config-ref="HTTP_Listener_config"/>
+		<http:listener doc:name="Listener" doc:id="0645dc38-3df1-4eb4-8869-9ac8a1064b0f" path="${secure::http.path}" config-ref="HTTP_Listener_config"/>
 		<ee:transform doc:name="Transform Message" doc:id="de1298dd-dabd-41df-bdc3-c74b2dbd3de7" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0

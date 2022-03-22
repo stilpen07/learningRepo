@@ -37,8 +37,8 @@
 						<username>${anypoint.username}</username>
 						<password>${anypoint.password}</password>
 						<applicationName>${cloudhub.application.name}</applicationName>
+						<businessGroup>${business}</businessGroup>
 						<environment>${env}</environment>
-						<region>${region}</region>
 						<workers>${workers}</workers>
 						<objectStoreV2>true</objectStoreV2>
 						<workerType>${workerType}</workerType>
